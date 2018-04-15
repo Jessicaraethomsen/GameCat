@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+	<head>
+	<meta charset="UTF-8">
+	<title>timer</title>
+	<style>
+@import url('https://fonts.googleapis.com/css?family=Press+Start+2P');
+body {
+	background: #252532;
+}
+h1 {
+	margin-left: 12%;
+	font-family: 'Press Start 2P', cursive;
+	color: #549487;
+	margin: 0, auto;
+	width: 100%;
+}
+h2 {
+	margin-left: 12%;
+	font-family: 'Press Start 2P', cursive;
+	color: #549487;
+	margin: 0, auto;
+	width: 100%;
+}
+</style>
+	<script type="text/javascript" src="js/phaser2.10.3.min.js"></script>
+	<script>
+
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'test', null, false, false);
+
+var BasicGame = function (game) {};
+
+BasicGame.Boot = function (game) {};
+
+var timer, timerEvent, loseText, winText;
+var cursors, cat, catcher, score, scoreTXT, music, catsound;
+
+
+BasicGame.Boot.prototype = {
+    preload: function () {
+		
+		//images
+		game.load.image('bg', 'assets/level-2.png');
+		game.load.image('catcher', 'assets/catcher2.png');
+		game.load.image('cat', 'assets/leopard.png');
+		
+		
+		//music
+		game.load.audio('background','assets/jungle.mp3');
+   		game.load.audio('meow','assets/meow.mp3');
+    
+        
+    },
+    create: function () {
+		
+		
+		
+		
+        timer = game.time.create();
+        
+        // Create a delayed event 1m and 30s from now
+        timerEvent = timer.add(Phaser.Timer.MINUTE * 0 + Phaser.Timer.SECOND * 10, this.endTimer, this);
+        
+        // Start the timer
+        timer.start();
+		
+		//Create BG
+		game.add.sprite(0,0, 'bg');
+		
+		//Create Catcher
+		catcher=game.add.sprite(game.width / 2 , 350, 'catcher');
+		catcher.anchor.setTo(0.5, 0.5);
+		
+		//Create Cat
+		cat=game.add.sprite(game.width * Math.random(), game.height * Math.random(),'cat');
+		cat.anchor.setTo(0.5, 0.5);
+	
+		
+		game.physics.enable(catcher, Phaser.Physics.ARCADE);
+		game.physics.enable(cat, Phaser.Physics.ARCADE);
+		
+
+		cursors = game.input.keyboard.createCursorKeys();
+		
+		//create SCORE
+		score = 0;
+		scoreTXT = game.add.text(10, 10, score.toString(), { font: "30px Press Start 2P", fill: "#ffffff"});
+		
+		
+		//add sound & music
+		music = game.add.audio('background');
+		music.play();
+		
+		catsound= game.add.audio('meow');
+	
+       
+		
+		
+    },
+	
+	
+    update: function () {
+		
+		//runs the game loop
+		//if left arrow is pressed
+		if(cursors.left.isDown && catcher.x>10){
+			catcher.x -= 5;
+			//scaling 100% pointing in the orginal directiosn
+			catcher.scale.x = -1;
+			
+		}
+		
+		if(cursors.right.isDown && catcher.x<game.width-10){
+			catcher.x += 5;
+			catcher.scale.x = 1;
+			
+		}
+		
+		if(cursors.up.isDown && catcher.y>10){
+			catcher.y -= 5;
+			
+		}
+		
+		if(cursors.down.isDown && catcher.y<game.height-10){
+			catcher.y += 5;
+			}
+		
+		
+		//implementing HITTEST is always attacht to the physics class
+		//arguments: objects, callback function
+		
+		game.physics.arcade.overlap(catcher, cat, catHitHandler);
+        
+    },
+	
+	
+    render: function () {
+        // If our timer is running, show the time in a nicely formatted way, else show 'Done!'
+        if (timer.running) {
+            game.debug.text(this.formatTime(Math.round((timerEvent.delay - timer.ms) / 1000)), 750, 20, "#fff");
+        }
+        else {
+			    
+
+			game.debug.text("", 2, 14, "#0f0");
+			loseText = game.add.text(game.world.centerX, game.world.centerY, "- You Lose -\nclick to play again", { font: "25px 'Press Start 2P'", fill: "#ff0044", align: "center" });
+    		loseText.anchor.setTo(0.5, 0.5);
+			game.input.onDown(youLose);
+				
+        }
+    },
+	
+
+	
+    endTimer: function() {
+        // Stop the timer when the delayed event triggers
+        timer.stop();
+    },
+	
+	
+	
+    formatTime: function(s) {
+        // Convert seconds (s) to a nicely formatted and padded time string
+		var minutes = "0" + Math.floor(s / 60);
+        var seconds = "0" + (s - minutes * 60);
+        return minutes.substr(-2) + ":" + seconds.substr(-2);   
+    }
+};
+
+
+		
+function catHitHandler(){
+		console.log('Cat caught!');
+		//we need to relocate our cat
+		catsound.play();
+		cat.x = game.width * Math.random();
+		cat.y = game.height * Math.random();
+		score++;
+		scoreTXT.setText(score.toString());
+	
+			if (score == 3) {
+  			timer.stop();
+			winText = game.add.text(game.world.centerX, game.world.centerY, "- You win -\nclick to play again", { font: "25px 'Press Start 2P'", fill: '#ffffff', align: "center"  });
+    		winText.anchor.setTo(0.5, 0.5);
+			game.input.onDown(youWin);
+			cat.destroy();
+			catcher.destroy();
+				
+			} 
+	}
+		
+	
+	
+	function youLose() {
+    loseText.destroy();
+	game.state.start('Boot');	
+	}	
+		
+		
+	function youWin() {
+    winText.destroy();
+	game.state.start('Boot');	
+	}
+	
+
+game.state.add('Boot', BasicGame.Boot);
+game.state.start('Boot');
+
+	</script>
+	</head>
+
+	<body>
+<h1>CAT CATCHER 5000</h1>
+<h2>Welcome to Level Two</h2>
+</body>
+</html>
