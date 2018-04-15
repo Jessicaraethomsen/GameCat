@@ -84,9 +84,7 @@ BasicGame.Boot.prototype = {
 		music.play();
 		
 		catsound= game.add.audio('meow');
-		
-		
-		
+
 			// Create a custom timer
         timer = game.time.create();
         
@@ -109,11 +107,9 @@ BasicGame.Boot.prototype = {
 
     },
 	
-	
+
     update: function () {
-		
-		
-		
+
 		var tmp = this.formatTime(Math.round((timerEvent.delay - timer.ms) / 1000));
  
         if (timer.running && tmp >= 1) {
@@ -121,8 +117,6 @@ BasicGame.Boot.prototype = {
           this.scoreLabelTween.start();
         }
 		
-		//runs the game loop
-		//if left arrow is pressed
 		if(cursors.left.isDown && catcher.x>10){
 			catcher.x -= 5;
 			//scaling 100% pointing in the orginal directiosn
@@ -173,7 +167,6 @@ BasicGame.Boot.prototype = {
     },
 	
 	
-	
     formatTime: function(s) {
 		// Convert seconds (s) to a nicely formatted and padded time string
         var minutes = "0" + Math.floor(s / 60);
@@ -181,7 +174,6 @@ BasicGame.Boot.prototype = {
         return seconds.substr(-2);     
     }
 };
-
 
 		
 function catHitHandler(){
@@ -194,8 +186,7 @@ function catHitHandler(){
 		scoreTXT.setText(score.toString());
 	
 			if (score == 6) {
-  			
-				
+	
 			winText = game.add.text(game.world.centerX, game.world.centerY, "- You win -\nclick to play again", { font: "25px 'Press Start 2P'", fill: '#ffffff', align: "center"  });
     		winText.anchor.setTo(0.5, 0.5);
 							game.input.onDown.addOnce(youWin, this);
